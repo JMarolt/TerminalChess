@@ -10,5 +10,6 @@ Knight::Knight(std::string information) : Piece(information){}
 
 std::vector<std::string> Knight::legalMoves(std::vector<Piece*>& pieces){
     std::vector<std::string> moves;
+
     return moves;
 }
