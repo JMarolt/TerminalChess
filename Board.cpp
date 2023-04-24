@@ -83,7 +83,22 @@ void Board::run(){
         }
         cout << "Where would you like to move that piece to?\n";
         cin >> input;
-        toBeMoved->makeMove(pieces, input);
+        bool legal = false;
+        for(int i = 0; i < toBeMoved->legalMoves(pieces).size(); i++){
+            if(toBeMoved->legalMoves(pieces).at(i) == input){
+                legal = true;
+                break;
+            }
+        }
+        if(legal){
+            toBeMoved->makeMove(pieces, input);
+        }else{
+            cout << "Legal Moves: ";
+            for(int i = 0; i < toBeMoved->legalMoves(pieces).size(); i++){
+                cout << toBeMoved->legalMoves(pieces).at(i) << ", ";
+            }
+            break;
+        }
         //update pieces legal moves here
         whiteTurn = !whiteTurn;
         printBoardWhitePerspective();

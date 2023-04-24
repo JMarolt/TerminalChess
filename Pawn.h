@@ -21,6 +21,7 @@ class Pawn : public Piece{
 
     private:
         std::string position;
+        std::string startingPosition;
         bool hasMoved;
         int turnsSinceFirstMove;
 

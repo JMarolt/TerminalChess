@@ -23,7 +23,10 @@ class Piece{
             this->position = information;
         }
         //all moves within the board, cant move onto a square with its own piece, restricts movement if king is in check
-        virtual vector<string> legalMoves(vector<Piece*>&) = 0;
+        virtual vector<string> legalMoves(vector<Piece*>&){
+            vector<string> temp;
+            return temp;
+        }
         string getInformation(){
             return position;
         }

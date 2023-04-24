@@ -13,15 +13,26 @@ using std::vector;
 
 Pawn::Pawn(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){
     hasMoved = false;
+    string str = "";
+    str.push_back(team);
+    str.push_back(pieceIdentifier);
+    str.push_back(letterRank);
+    string toAdd = to_string(numberRank);
+    str.append(toAdd);
+    this->position = str;
+    startingPosition = position;
 }
 
 vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
+    if(startingPosition != getInformation()){
+        hasMoved = true;
+    }
     vector<string> moves;
     if(position[0] == 'W'){
         bool blocked = true;
         if(position[3] < '8'){
-            string oneSpace = position;
-            oneSpace[3] = position[3] + 1;
+            string oneSpace = getPos();
+            oneSpace[1]++;
             if(!pieceOnLocation(pieces, oneSpace)){
                 blocked = false;
                 moves.push_back(oneSpace);
@@ -29,7 +40,8 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
         }
         if(hasMoved == false){
             if(!blocked){
-                string twoSpaces = position;
+                string twoSpaces = getPos();
+                twoSpaces[1] += 2;
                 if(!pieceOnLocation(pieces, twoSpaces)){
                     moves.push_back(twoSpaces);
                 }
@@ -38,8 +50,8 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
     }else{
         bool blocked = true;
         if(position[3] > '1'){
-            string oneSpace = position;
-            oneSpace[3] = position[3] + 1;
+            string oneSpace = getPos();
+            oneSpace[1]--;
             if(!pieceOnLocation(pieces, oneSpace)){
                 blocked = false;
                 moves.push_back(oneSpace);
@@ -47,7 +59,8 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
         }
         if(hasMoved == false){
             if(!blocked){
-                string twoSpaces = position;
+                string twoSpaces = getPos();
+                twoSpaces[1] -= 2;
                 if(!pieceOnLocation(pieces, twoSpaces)){
                     moves.push_back(twoSpaces);
                 }
