@@ -24,48 +24,43 @@ Pawn::Pawn(char team, char pieceIdentifier, char letterRank, int numberRank) : P
 }
 
 vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
+    char teamLetter = getInformation()[0];
     if(startingPosition != getInformation()){
         hasMoved = true;
     }
     vector<string> moves;
-    if(position[0] == 'W'){
-        bool blocked = true;
-        if(position[3] < '8'){
-            string oneSpace = getPos();
-            oneSpace[1]++;
-            if(!pieceOnLocation(pieces, oneSpace)){
-                blocked = false;
-                moves.push_back(oneSpace);
+    int value = 1;
+    if(getInformation()[0] == 'B') value = -1;
+    bool blocked = true;
+    if(getInformation()[3] < '8' && getInformation()[3] > '1'){
+        string oneSpace = getPos();
+        oneSpace[1] += value;
+        if(!pieceOnLocation(pieces, oneSpace)){
+            blocked = false;
+            moves.push_back(oneSpace);
+        }
+    }
+    if(hasMoved == false){
+        if(!blocked){
+            string twoSpaces = getPos();
+            twoSpaces[1] += (value * 2);
+            if(!pieceOnLocation(pieces, twoSpaces)){
+                moves.push_back(twoSpaces);
             }
         }
-        if(hasMoved == false){
-            if(!blocked){
-                string twoSpaces = getPos();
-                twoSpaces[1] += 2;
-                if(!pieceOnLocation(pieces, twoSpaces)){
-                    moves.push_back(twoSpaces);
-                }
-            }
-        }
-    }else{
-        bool blocked = true;
-        if(position[3] > '1'){
-            string oneSpace = getPos();
-            oneSpace[1]--;
-            if(!pieceOnLocation(pieces, oneSpace)){
-                blocked = false;
-                moves.push_back(oneSpace);
-            }
-        }
-        if(hasMoved == false){
-            if(!blocked){
-                string twoSpaces = getPos();
-                twoSpaces[1] -= 2;
-                if(!pieceOnLocation(pieces, twoSpaces)){
-                    moves.push_back(twoSpaces);
-                }
-            }
-        }
+    }
+    //now check if it can move up diagonally to capture a piece(will check en passant and in check later)
+    string rightDiag = getPos();
+    string leftDiag = getPos();
+    rightDiag[0] = rightDiag[0] + value;
+    leftDiag[0] = leftDiag[0] - value;
+    rightDiag[1] += value;
+    leftDiag[1] += value;
+    if(getPieceOnLocation(pieces, rightDiag) != nullptr && getPieceOnLocation(pieces, rightDiag)->getInformation()[0] != teamLetter){
+        moves.push_back(rightDiag);
+    }
+    if(getPieceOnLocation(pieces, leftDiag) != nullptr && getPieceOnLocation(pieces, leftDiag)->getInformation()[0] != teamLetter){
+        moves.push_back(leftDiag);
     }
     return moves;
 }
