@@ -66,9 +66,12 @@ void Board::init(){
 
 void Board::run(){
     printBoardWhitePerspective();
+    bool whiteTurn = true;
     string input = "";
+    string teamColorTurn = "White";
     while(input != "//"){
-        cout << "What piece would would you like to move?\n";
+        whiteTurn == 1 ? teamColorTurn = "White" : teamColorTurn = "Black";
+        cout << "What piece would would you like to move?" << "(" << teamColorTurn << " to move)" << "\n";
         cin >> input;
         if(input == "//"){
             break;
@@ -81,6 +84,8 @@ void Board::run(){
         cout << "Where would you like to move that piece to?\n";
         cin >> input;
         toBeMoved->makeMove(pieces, input);
+        //update pieces legal moves here
+        whiteTurn = !whiteTurn;
         printBoardWhitePerspective();
         continue;
     }
