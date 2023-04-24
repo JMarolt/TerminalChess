@@ -47,6 +47,16 @@ class Piece{
             }
             return false;
         }
+        Piece* getPieceOnLocation(vector<Piece*>& pieces, string& location) const{
+            for(unsigned i = 0; i < pieces.size(); i++){
+                if(pieces.at(i)->getPos() == location){
+                    if(pieces.at(i) != this){
+                        return pieces.at(i);
+                    }
+                }
+            }
+            return nullptr;
+        }
         //needs to be a function that restricts or basically forces moves because of check
         void makeMove(vector<Piece*>& pieces, string newPosition){
             for(unsigned i = 0; i < pieces.size(); i++){
