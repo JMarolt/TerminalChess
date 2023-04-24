@@ -22,6 +22,7 @@ class Piece{
         Piece(string information){
             this->position = information;
         }
+        //all moves within the board, cant move onto a square with its own piece, restricts movement if king is in check
         virtual vector<string> legalMoves(vector<Piece*>&) = 0;
         string getInformation(){
             return position;
@@ -34,7 +35,10 @@ class Piece{
         }
         bool pieceOnLocation(vector<Piece*>& pieces, string& location) const{
             for(unsigned i = 0; i < pieces.size(); i++){
-                if(pieces.at(i)->getInformation() == location){
+                if(pieces.at(i)->getPos() == location){
+                    if(pieces.at(i) == this){
+                        return false;
+                    }
                     return true;
                 }
             }
@@ -45,21 +49,26 @@ class Piece{
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i) == this){
                     pieces.at(i)->setInformation(pieces.at(i)->getInformation().substr(0, 2) + newPosition);
-                }
-                //check piece color
-                if(pieces.at(i)->getPos() == newPosition.substr(2, 2) && pieces.at(i)->getInformation()[0] != newPosition[0]){
-                    capturePiece(pieces, i);
+                    if(pieceOnLocation(pieces, newPosition)){
+                        capturePiece(pieces, newPosition);
+                    }
                 }
             }
         }
 
-        void capturePiece(vector<Piece*>& pieces, unsigned positionToBeRemoved){
-            Piece* pieceToBeRemoved = pieces.at(positionToBeRemoved);
-            pieces.erase(pieces.begin() + positionToBeRemoved);
+        void capturePiece(vector<Piece*>& pieces, string position){
+            int indexToRemove = 0;
+            for(int i = 0; i < pieces.size(); i++){
+                if(pieces.at(i)->getPos() == position){
+                    indexToRemove = i;
+                    break;
+                }
+            }
+            Piece* pieceToBeRemoved = pieces.at(indexToRemove);
+            pieces.erase(pieces.begin() + indexToRemove);
             cout << "Piece Captured: " << pieceToBeRemoved->getInformation() << endl;
             delete pieceToBeRemoved;
         }
-        //virtual void draw() = 0;
 
     private:
         string position;
