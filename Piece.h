@@ -27,6 +27,7 @@ class Piece{
             vector<string> temp;
             return temp;
         }
+        virtual void promote(vector<Piece*>&, Piece*, int){}
         string getInformation(){
             return position;
         }
@@ -40,7 +41,7 @@ class Piece{
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i)->getPos() == location){
                     if(pieces.at(i) == this){
-                        return false;
+                        continue;
                     }
                     return true;
                 }
@@ -62,17 +63,28 @@ class Piece{
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i) == this){
                     pieces.at(i)->setInformation(pieces.at(i)->getInformation().substr(0, 2) + newPosition);
+                    if(canPiecePromote(pieces.at(i)->getInformation())){
+                        string choice = "";
+                        int num = 1;
+                        cout << "Your pawn can be promoted! What piece would you like?(Bishop, Knight, Queen, Rook)(By not choosing one of these choices, you will be automatically promoted to a queen)\n";
+                        cin >> choice;
+                        if(choice == "Queen") num = 1;
+                        if(choice == "Bishop") num = 2;
+                        if(choice == "Rook") num = 3;
+                        if(choice == "Knight") num = 4;
+                        pieces.at(i)->promote(pieces, pieces.at(i), num);
+                    }
                     if(pieceOnLocation(pieces, newPosition)){
-                        capturePiece(pieces, newPosition);
+                        capturePiece(pieces, getPieceOnLocation(pieces, newPosition)->getInformation(), newPosition);
                     }
                 }
             }
         }
 
-        void capturePiece(vector<Piece*>& pieces, string position){
+        void capturePiece(vector<Piece*>& pieces, string pieceInfo, string position){
             int indexToRemove = 0;
             for(int i = 0; i < pieces.size(); i++){
-                if(pieces.at(i)->getPos() == position){
+                if(pieces.at(i)->getPos() == position && pieces.at(i)->getInformation() == pieceInfo){
                     indexToRemove = i;
                     break;
                 }
@@ -85,6 +97,23 @@ class Piece{
 
     private:
         string position;
+
+
+        bool canPiecePromote(string pieceInfo){
+            if(pieceInfo[1] != 'P'){
+                return false;
+            }
+            if(pieceInfo[0] == 'W'){
+                if(pieceInfo[3] == '8'){
+                    return true;
+                }
+            }else{
+                if(pieceInfo[3] == '1'){
+                    return true;
+                } 
+            }
+            return false;
+        }
 
 };
 #endif

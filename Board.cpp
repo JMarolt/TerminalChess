@@ -177,4 +177,8 @@ Piece* Board::getPiece(vector<Piece*>& pieces, string pieceCode){
     return nullptr;
 }
 
+void Board::addEnPassantLegalMoves(){
+    
+}
+
 
