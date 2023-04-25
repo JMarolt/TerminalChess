@@ -50,6 +50,7 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
         }
     }
     //now check if it can move up diagonally to capture a piece(will check en passant and in check later)
+    //works
     string rightDiag = getPos();
     string leftDiag = getPos();
     rightDiag[0] = rightDiag[0] + value;
@@ -62,10 +63,14 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
     if(getPieceOnLocation(pieces, leftDiag) != nullptr && getPieceOnLocation(pieces, leftDiag)->getInformation()[0] != teamLetter){
         moves.push_back(leftDiag);
     }
+
+    //EN PASSANT TIME
+    //ok so i need to store a list of moves and get the most recent move. then i need to check whether that piece
+    //that most recently moved is a pawn and is directly to my pawns right or left
     return moves;
 }
 
-void Pawn::promote(vector<Piece*> pieces, Pawn* pawnToReplace, int choice){
+void Pawn::promote(vector<Piece*>& pieces, Piece* pawnToReplace, int choice){
     string pawnInfo = pawnToReplace->getInformation();
     for(unsigned i = 0; i < pieces.size(); i++){
         if(pieces.at(i) == pawnToReplace){
@@ -76,24 +81,28 @@ void Pawn::promote(vector<Piece*> pieces, Pawn* pawnToReplace, int choice){
     switch(choice){
         case 1:
         {
+            pawnInfo[1] = 'Q';
             Queen* queen = new Queen(pawnInfo);
             pieces.push_back(queen);
             break;
         }
         case 2:
         {
+            pawnInfo[1] = 'B';
             Bishop* bishop = new Bishop(pawnInfo);
             pieces.push_back(bishop);
             break;
         }
         case 3:
         {
+            pawnInfo[1] = 'R';
             Rook* rook = new Rook(pawnInfo);
             pieces.push_back(rook);
             break;
         }
         case 4:
         {
+            pawnInfo[1] = 'N';
             Knight* knight = new Knight(pawnInfo);
             pieces.push_back(knight);
             break;

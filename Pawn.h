@@ -10,7 +10,7 @@ class Pawn : public Piece{
         void setHasMoved(bool moved){
             this->hasMoved = moved;
         }
-        void promote(std::vector<Piece*>, Pawn*, int);
+        void promote(std::vector<Piece*>&, Piece*, int);
         void setTurnAmount(int turns){
             this->turnsSinceFirstMove = turns;
         }
