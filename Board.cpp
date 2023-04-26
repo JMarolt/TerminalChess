@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 #include "Board.h"
 #include "Pawn.h"
@@ -67,6 +68,7 @@ void Board::init(){
 void Board::run(){
     printBoardWhitePerspective();
     bool whiteTurn = true;
+    bool isInCheck = false;
     string input = "";
     string teamColorTurn = "White";
     while(input != "//"){
@@ -81,27 +83,40 @@ void Board::run(){
             cout << "That is not a valid piece. Please try again\n";
             break;
         }
+
+        if(toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size() == 0){
+            cout << "This piece has no legal moves, please choose another piece\n";
+
+        }
+
         cout << "Where would you like to move that piece to?\n";
         cin >> input;
+
         bool legal = false;
-        for(int i = 0; i < toBeMoved->legalMoves(pieces).size(); i++){
-            if(toBeMoved->legalMoves(pieces).at(i) == input){
+        for(int i = 0; i < toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size(); i++){
+            if(toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).at(i) == input){
                 legal = true;
                 break;
             }
         }
         if(legal){
+            string previousLocation = toBeMoved->getPos();
             toBeMoved->makeMove(pieces, input);
+            string newPrev = toBeMoved->getInformation().append(previousLocation);
+            previousMoves.push_back(newPrev);
         }else{
             cout << "Legal Moves: ";
-            for(int i = 0; i < toBeMoved->legalMoves(pieces).size(); i++){
-                cout << toBeMoved->legalMoves(pieces).at(i) << ", ";
+            for(int i = 0; i < toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size(); i++){
+                cout << toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).at(i) << ", ";
             }
             break;
         }
         //update pieces legal moves here
         whiteTurn = !whiteTurn;
         printBoardWhitePerspective();
+
+        //check for stalemate and checkmate down here
+
         continue;
     }
 }
@@ -177,8 +192,6 @@ Piece* Board::getPiece(vector<Piece*>& pieces, string pieceCode){
     return nullptr;
 }
 
-void Board::addEnPassantLegalMoves(){
-    
-}
-
+//basically, its true if there are no legal moves for a player and the king is in check
+//if there are no legal moves, its their turn and they aren't in check, then it is a stalemate. 
 
