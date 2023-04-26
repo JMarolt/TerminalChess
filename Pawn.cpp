@@ -23,7 +23,7 @@ Pawn::Pawn(char team, char pieceIdentifier, char letterRank, int numberRank) : P
     startingPosition = position;
 }
 
-vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
+vector<string> Pawn::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
     char teamLetter = getInformation()[0];
     if(startingPosition != getInformation()){
         hasMoved = true;
@@ -49,8 +49,7 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
             }
         }
     }
-    //now check if it can move up diagonally to capture a piece(will check en passant and in check later)
-    //works
+    //now check if it can move up diagonally to capture a piece(will check en passant later)
     string rightDiag = getPos();
     string leftDiag = getPos();
     rightDiag[0] = rightDiag[0] + value;
@@ -64,10 +63,50 @@ vector<string> Pawn::legalMoves(vector<Piece*>& pieces){
         moves.push_back(leftDiag);
     }
 
-    //EN PASSANT TIME
-    //ok so i need to store a list of moves and get the most recent move. then i need to check whether that piece
-    //that most recently moved is a pawn and is directly to my pawns right or left
+    //EN PASSANT TIME... yuck
+    if((getInformation()[0] == 'W' && getInformation()[3] == '5') || (getInformation()[0] == 'B' && getInformation()[3] == '4')){
+        string toRight = getPos();
+        string toLeft = getPos();
+        toRight[0] += value;
+        toLeft[0] -= value;
+        Piece* rightPiece = getPieceOnLocation(pieces, toRight);
+        if(rightPiece != nullptr){
+            if(rightPiece->getInformation()[0] != teamLetter && rightPiece->getInformation()[1] == 'P'){
+                if(previousMoves.at(previousMoves.size() - 1).substr(0, 4) == rightPiece->getInformation()){
+                    string oldRight = toRight;
+                    oldRight[1] += (2 * value);
+                    if(previousMoves.at(previousMoves.size() - 1).substr(4, 2) == oldRight){
+                        oldRight[1] -= value;
+                        moves.push_back(oldRight);
+                    }
+                }
+            }
+        }
+        Piece* leftPiece = getPieceOnLocation(pieces, toLeft);
+        if(leftPiece != nullptr){
+            if(leftPiece->getInformation()[0] != teamLetter && leftPiece->getInformation()[1] == 'P'){
+                if(previousMoves.at(previousMoves.size() - 1).substr(0, 4) == leftPiece->getInformation()){
+                    string oldLeft = toLeft;
+                    oldLeft[1] += (2 * value);
+                    if(previousMoves.at(previousMoves.size() - 1).substr(4, 2) == oldLeft){
+                        oldLeft[1] -= value;
+                        moves.push_back(oldLeft);
+                    }
+                }
+            }
+        }
+    }
     return moves;
+}
+
+vector<string> Pawn::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+    vector<string> tempLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+    return tempLegalMoves;
+}
+
+vector<string> Pawn::legalMovesRestrictedByCheck(vector<Piece*>& pieces, bool whiteTurn){
+    vector<string> temp;
+    return temp;
 }
 
 void Pawn::promote(vector<Piece*>& pieces, Piece* pawnToReplace, int choice){

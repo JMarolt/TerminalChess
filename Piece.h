@@ -22,8 +22,13 @@ class Piece{
         Piece(string information){
             this->position = information;
         }
-        //all moves within the board, cant move onto a square with its own piece, restricts movement if king is in check
-        virtual vector<string> legalMoves(vector<Piece*>&){
+        //all LEGAL moves
+        virtual vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool){
+            vector<string> temp;
+            return temp;
+        }
+        //legal moves before check restrictions of a specific piece
+        virtual vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool){
             vector<string> temp;
             return temp;
         }
@@ -62,7 +67,15 @@ class Piece{
         void makeMove(vector<Piece*>& pieces, string newPosition){
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i) == this){
+                    string enPassantOldPosition = pieces.at(i)->getInformation();
                     pieces.at(i)->setInformation(pieces.at(i)->getInformation().substr(0, 2) + newPosition);
+                    if(isEnPassant(pieces, enPassantOldPosition, newPosition)){
+                        int add = 1;
+                        if(pieces.at(i)->getInformation()[0] == 'B') add = -1;
+                        string pawnPositionBeingCaptured = newPosition;
+                        pawnPositionBeingCaptured[1] -= add;
+                        capturePiece(pieces, getPieceOnLocation(pieces, pawnPositionBeingCaptured)->getInformation(), pawnPositionBeingCaptured);
+                    }
                     if(canPiecePromote(pieces.at(i)->getInformation())){
                         string choice = "";
                         int num = 1;
@@ -81,6 +94,8 @@ class Piece{
             }
         }
 
+        //pieceInfo refers to information about piece TO BE CAPTURED and position refers to position of piece
+        //REMOVE the position argument, it is useless
         void capturePiece(vector<Piece*>& pieces, string pieceInfo, string position){
             int indexToRemove = 0;
             for(int i = 0; i < pieces.size(); i++){
@@ -97,7 +112,10 @@ class Piece{
 
     private:
         string position;
-
+        virtual vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool){
+            vector<string> temp;
+            return temp;
+        }
 
         bool canPiecePromote(string pieceInfo){
             if(pieceInfo[1] != 'P'){
@@ -111,6 +129,20 @@ class Piece{
                 if(pieceInfo[3] == '1'){
                     return true;
                 } 
+            }
+            return false;
+        }
+
+        //we can check if our piece is a pawn and if its going diagonal onto a square with no piece, it must
+        //be capturing another pawn that just advanced 2 squares
+        bool isEnPassant(vector<Piece*>& pieces, string pieceInfo, string newPosition){
+            if(pieceInfo[1] != 'P'){
+                return false;
+            }
+            if(pieceInfo[2] != newPosition[0]){
+                if(!pieceOnLocation(pieces, newPosition)){
+                    return true;
+                }
             }
             return false;
         }
