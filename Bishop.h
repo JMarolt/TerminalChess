@@ -2,15 +2,20 @@
 #define BISHOP_H
 #include "Piece.h"
 #include <string>
+#include <vector>
+
+using namespace std;
 
 class Bishop : public Piece{
     public:
         Bishop(char, char, char, int);
-        Bishop(std::string);
-        std::vector<std::string> legalMoves(std::vector<Piece*>&);
+        Bishop(string);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
 
     private:
-        std::string position;
+        string position;
         
 
 };
