@@ -3,15 +3,19 @@
 #include "Piece.h"
 #include <string>
 
+using namespace std;
+
 class Rook : public Piece{
     public:
         Rook(char, char, char, int);
-        Rook(std::string);
-        std::vector<std::string> legalMoves(std::vector<Piece*>&);
+        Rook(string);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
 
     private:
-        std::string position;
-        
+        string position;
+        bool hasMoved;
 
 };
 #endif
