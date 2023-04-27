@@ -4,11 +4,98 @@
 
 #include "Rook.h"
 
-Rook::Rook(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){}
+using namespace std;
+
+Rook::Rook(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){
+    hasMoved = false;
+    string str = "";
+    str.push_back(team);
+    str.push_back(pieceIdentifier);
+    str.push_back(letterRank);
+    string toAdd = to_string(numberRank);
+    str.append(toAdd);
+    this->position = str;
+}
 
 Rook::Rook(std::string information) : Piece(information){}
 
-std::vector<std::string> Rook::legalMoves(std::vector<Piece*>& pieces){
-    std::vector<std::string> moves;
+vector<string> Rook::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+    return allLegalMoves;
+}
+        
+vector<string> Rook::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+    vector<string> moves;
+    char teamLetter = getInformation()[0];
+    int i;
+    //left
+    string pos = getPos();
+    pos[0] -= 1;
+    for(i = 0; i < 8; i++){
+        if(pos[0] < 'a'){
+            break;
+        }
+        if(pieceOnLocation(pieces, pos)){
+            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
+                moves.push_back(pos);
+            }
+            break;
+        }
+        moves.push_back(pos);
+        pos[0] -= 1;
+    }
+    //right
+    pos = getPos();
+    pos[0] += 1;
+    for(i = 0; i < 8; i++){
+        if(pos[0] > 'h'){
+            break;
+        }
+        if(pieceOnLocation(pieces, pos)){
+            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
+                moves.push_back(pos);
+            }
+            break;
+        }
+        moves.push_back(pos);
+        pos[0] += 1;
+    }
+    //down
+    pos = getPos();
+    pos[1] -= 1;
+    for(i = 0; i < 8; i++){
+        if(pos[1] < '1'){
+            break;
+        }
+        if(pieceOnLocation(pieces, pos)){
+            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
+                moves.push_back(pos);
+            }
+            break;
+        }
+        moves.push_back(pos);
+        pos[1] -= 1;
+    }
+    //up
+    pos = getPos();
+    pos[1] += 1;
+    for(i = 0; i < 8; i++){
+        if(pos[1] > '8'){
+            break;
+        }
+        if(pieceOnLocation(pieces, pos)){
+            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
+                moves.push_back(pos);
+            }
+            break;
+        }
+        moves.push_back(pos);
+        pos[1] += 1;
+    }
     return moves;
+}
+        
+vector<string> Rook::legalMovesRestrictedByCheck(vector<Piece*>&, bool){
+    vector<string> temp;
+    return temp;
 }

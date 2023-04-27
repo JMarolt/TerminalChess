@@ -22,26 +22,31 @@ class Piece{
         Piece(string information){
             this->position = information;
         }
-        //all LEGAL moves
+        //returns ONLY the legal moves for a piece
         virtual vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool){
             vector<string> temp;
             return temp;
         }
-        //legal moves before check restrictions of a specific piece
+        //returns all legal moves and illegal moves because of check
         virtual vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool){
             vector<string> temp;
             return temp;
         }
+        //function just for the pawn class to promote when on the back rank
         virtual void promote(vector<Piece*>&, Piece*, int){}
+        //returns the piece identity and the position combined
         string getInformation(){
             return position;
         }
+        //sets the piece's identity and position
         void setInformation(string info){
             this->position = info;
         }
+        //returns JUST the position
         string getPos(){
             return position.substr(2, 2);
         }
+        //determines if a piece is on a given location
         bool pieceOnLocation(vector<Piece*>& pieces, string& location) const{
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i)->getPos() == location){
@@ -53,6 +58,7 @@ class Piece{
             }
             return false;
         }
+        //returns a pointer to the piece object given the location
         Piece* getPieceOnLocation(vector<Piece*>& pieces, string& location) const{
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i)->getPos() == location){
@@ -67,6 +73,7 @@ class Piece{
         void makeMove(vector<Piece*>& pieces, string newPosition){
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i) == this){
+                    //Special case: En Passant
                     string enPassantOldPosition = pieces.at(i)->getInformation();
                     pieces.at(i)->setInformation(pieces.at(i)->getInformation().substr(0, 2) + newPosition);
                     if(isEnPassant(pieces, enPassantOldPosition, newPosition)){
@@ -76,6 +83,7 @@ class Piece{
                         pawnPositionBeingCaptured[1] -= add;
                         capturePiece(pieces, getPieceOnLocation(pieces, pawnPositionBeingCaptured)->getInformation(), pawnPositionBeingCaptured);
                     }
+                    //Special Case: Promotion
                     if(canPiecePromote(pieces.at(i)->getInformation())){
                         string choice = "";
                         int num = 1;
@@ -87,6 +95,7 @@ class Piece{
                         if(choice == "Knight") num = 4;
                         pieces.at(i)->promote(pieces, pieces.at(i), num);
                     }
+                    //capture a piece if its on the square to be moved
                     if(pieceOnLocation(pieces, newPosition)){
                         capturePiece(pieces, getPieceOnLocation(pieces, newPosition)->getInformation(), newPosition);
                     }
@@ -111,12 +120,16 @@ class Piece{
         }
 
     private:
+        //position includes the piece, team color, and position
         string position;
+        //removes the moves returned from temporaryLegalMoves that are illegal because the player is in check
+        //or that move causes the player to be in check
         virtual vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool){
             vector<string> temp;
             return temp;
         }
 
+        //checks whether or not a pawn has the ability to promote
         bool canPiecePromote(string pieceInfo){
             if(pieceInfo[1] != 'P'){
                 return false;

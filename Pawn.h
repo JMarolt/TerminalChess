@@ -3,16 +3,18 @@
 #include "Piece.h"
 #include <string>
 
+using namespace std;
+
 class Pawn : public Piece{
     public:
         Pawn(char, char, char, int);
-        std::vector<std::string> legalMoves(std::vector<Piece*>&, std::vector<std::string>&, bool, bool);
-        std::vector<std::string> temporaryLegalMoves(std::vector<Piece*>&, std::vector<std::string>&, bool, bool);
-        std::vector<std::string> legalMovesRestrictedByCheck(std::vector<Piece*>&, bool);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
         void setHasMoved(bool moved){
             this->hasMoved = moved;
         }
-        void promote(std::vector<Piece*>&, Piece*, int);
+        void promote(vector<Piece*>&, Piece*, int);
         void setTurnAmount(int turns){
             this->turnsSinceFirstMove = turns;
         }
@@ -22,8 +24,8 @@ class Pawn : public Piece{
         //en passant
 
     private:
-        std::string position;
-        std::string startingPosition;
+        string position;
+        string startingPosition;
         bool hasMoved;
         int turnsSinceFirstMove;
 
