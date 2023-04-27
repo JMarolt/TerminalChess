@@ -15,7 +15,7 @@ class Rook : public Piece{
 
     private:
         string position;
-        bool hasMoved;
+        string startingPosition;
 
 };
 #endif

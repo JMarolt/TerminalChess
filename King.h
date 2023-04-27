@@ -3,13 +3,18 @@
 #include "Piece.h"
 #include <string>
 
+using namespace std;
+
 class King : public Piece{
     public:
         King(char, char, char, int);
-        std::vector<std::string> legalMoves(std::vector<Piece*>&);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
 
     private:
-        std::string position;
+        string position;
+        string startingPosition;
         
 
 };

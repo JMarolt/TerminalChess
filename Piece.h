@@ -46,6 +46,10 @@ class Piece{
         string getPos(){
             return position.substr(2, 2);
         }
+        //returns if the piece has moved or not
+        bool moved(){
+            return hasMoved;
+        }
         //determines if a piece is on a given location
         bool pieceOnLocation(vector<Piece*>& pieces, string& location) const{
             for(unsigned i = 0; i < pieces.size(); i++){
@@ -73,9 +77,10 @@ class Piece{
         void makeMove(vector<Piece*>& pieces, string newPosition){
             for(unsigned i = 0; i < pieces.size(); i++){
                 if(pieces.at(i) == this){
-                    //Special case: En Passant
+                    string oldPosition = pieces.at(i)->getInformation().substr(2, 2);
                     string enPassantOldPosition = pieces.at(i)->getInformation();
                     pieces.at(i)->setInformation(pieces.at(i)->getInformation().substr(0, 2) + newPosition);
+                    //Special case: En Passant
                     if(isEnPassant(pieces, enPassantOldPosition, newPosition)){
                         int add = 1;
                         if(pieces.at(i)->getInformation()[0] == 'B') add = -1;
@@ -94,6 +99,24 @@ class Piece{
                         if(choice == "Rook") num = 3;
                         if(choice == "Knight") num = 4;
                         pieces.at(i)->promote(pieces, pieces.at(i), num);
+                    }
+                    //Special case: Castle
+                    if(pieces.at(i)->getInformation()[1] == 'K'){
+                        //queen side
+                        if(pieces.at(i)->getInformation()[2] == oldPosition[0] - 2){
+                            oldPosition[0] -= 4;
+                            Piece* temp = getPieceOnLocation(pieces, oldPosition);
+                            string newRookPosition = oldPosition;
+                            newRookPosition[0] += 3;
+                            temp->setInformation(temp->getInformation().substr(0, 2) + newRookPosition);
+                        //king side
+                        }else if(pieces.at(i)->getInformation()[2] == oldPosition[0] + 2){
+                            oldPosition[0] += 3;
+                            Piece* temp = getPieceOnLocation(pieces, oldPosition);
+                            string newRookPosition = oldPosition;
+                            newRookPosition[0] -= 2;
+                            temp->setInformation(temp->getInformation().substr(0, 2) + newRookPosition);
+                        }
                     }
                     //capture a piece if its on the square to be moved
                     if(pieceOnLocation(pieces, newPosition)){
@@ -159,6 +182,12 @@ class Piece{
             }
             return false;
         }
+
+        // bool canCastle(vector<Piece*>& pieces, )
+
+    protected:
+        //checks if the piece has moved(for pawn, rook, and king only)
+        bool hasMoved;
 
 };
 #endif
