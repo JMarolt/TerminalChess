@@ -15,6 +15,7 @@ Rook::Rook(char team, char pieceIdentifier, char letterRank, int numberRank) : P
     string toAdd = to_string(numberRank);
     str.append(toAdd);
     this->position = str;
+    startingPosition = position;
 }
 
 Rook::Rook(std::string information) : Piece(information){}
@@ -26,6 +27,9 @@ vector<string> Rook::legalMoves(vector<Piece*>& pieces, vector<string>& previous
         
 vector<string> Rook::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
     vector<string> moves;
+    if(startingPosition != getInformation()){
+        hasMoved = true;
+    }
     char teamLetter = getInformation()[0];
     int i;
     //left
