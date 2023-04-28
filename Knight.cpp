@@ -20,6 +20,20 @@ Knight::Knight(string information) : Piece(information){}
 
 vector<string> Knight::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
     vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+    if(isInCheck){
+        vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
+        for(int i = 0; i < allLegalMoves.size(); i++){
+            for(int k = 0; k < removeLegalMoves.size(); k++){
+                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
+                    allLegalMoves.erase(allLegalMoves.begin() + i);
+                    removeLegalMoves.erase(removeLegalMoves.begin() + k);
+                    i--;
+                    k--;
+                    break;
+                }
+            }
+        }
+    }
     return allLegalMoves;
 }
 
@@ -135,11 +149,5 @@ vector<string> Knight::temporaryLegalMoves(vector<Piece*>& pieces, vector<string
             moves.push_back(pos);
         }
     }
-    return moves;
-}
-
-vector<string> Knight::legalMovesRestrictedByCheck(vector<Piece*>& pieces, bool whiteTurn){
-    vector<string> moves;
-
     return moves;
 }

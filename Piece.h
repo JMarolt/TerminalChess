@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <queue>
 
 using namespace std;
 
@@ -147,10 +148,6 @@ class Piece{
         string position;
         //removes the moves returned from temporaryLegalMoves that are illegal because the player is in check
         //or that move causes the player to be in check
-        virtual vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool){
-            vector<string> temp;
-            return temp;
-        }
 
         //checks whether or not a pawn has the ability to promote
         bool canPiecePromote(string pieceInfo){
@@ -183,11 +180,84 @@ class Piece{
             return false;
         }
 
-        // bool canCastle(vector<Piece*>& pieces, )
-
     protected:
         //checks if the piece has moved(for pawn, rook, and king only)
         bool hasMoved;
 
+        //two things to check:
+        //1) if the player is in check, they must play a move to get them out of it
+        //2) if the player is not in check, they cannot play a move that will put their king in check
+        vector<string> legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+            //if the player is in check, restrict movement
+            vector<string> movesToRemove;
+            string kingPosition;
+            string originalKingPos;
+            string kingValue = "WK";
+            if(!whiteTurn){
+                kingValue = "BK";
+            }
+            for(int i = 0; i < pieces.size(); i++){
+                if(pieces.at(i)->getInformation().substr(0, 2) == kingValue){
+                    kingPosition = pieces.at(i)->getPos();
+                }
+            }
+            originalKingPos = kingPosition;
+            //I DONT ACTUALLY CAPTURE PIECE SO IT COUNTS AS AN ILLEGAL MOVE.
+            //I MIGHT HAVE TO MAKE A WHOLE SEPERATE PIECES LIST AND DO THE CALCULATIONS ON THAT
+            if(isInCheck){
+                for(int i = 0; i < pieces.size(); i++){ //go through all the pieces on the board
+                    if(whiteTurn){
+                        if(pieces.at(i)->getInformation()[0] == 'B') continue;
+                    }else{
+                        if(pieces.at(i)->getInformation()[0] == 'W') continue;
+                    }
+                    vector<string> legalMoves = pieces.at(i)->temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+                    //now we have to go through each of these moves and see whether if that move would stop check
+                    string originalInfo = pieces.at(i)->getInformation();
+
+                    for(int k = 0; k < legalMoves.size(); k++){ //go through all the legal moves of one piece
+                        //so we change the piece to the legal move. and then in another loop, we see if check remains
+
+                        // kingPosition = originalKingPos;
+                        // if(pieces.at(i)->getInformation()[1] == 'K'){
+                        //     kingPosition = legalMoves.at(k);
+                        // }
+
+                        pieces.at(i)->setInformation(originalInfo.substr(0, 2) + legalMoves.at(k));
+                        //This for loop directly below simply checks if the piece can be captured
+                        queue<int> piecesCapturedCheck; //this queue holds pieces that can be captured that are checking the king
+                        for(int m = 0; m < pieces.size(); m++){
+                            if(pieces.at(m)->getInformation().substr(2, 2) == legalMoves.at(k)){
+                                if(pieces.at(m)->getInformation()[0] != kingValue[0]){
+                                    piecesCapturedCheck.push(m);
+                                }
+                            }
+                        }
+                        //special positions needs to be checked where we assume a certain piece is removed
+                        for(int j = 0; j < pieces.size(); j++){ //go through all the pieces of the non-checked player
+                            if(whiteTurn){
+                                if(pieces.at(j)->getInformation()[0] == 'W') continue;
+                            }else{
+                                if(pieces.at(j)->getInformation()[0] == 'B') continue;
+                            }
+                            if(j == piecesCapturedCheck.front()){//skip piece because it was captured
+                                piecesCapturedCheck.pop();
+                                continue;
+                            }
+                            vector<string> moves_legal = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+                            for(int h = 0; h < moves_legal.size(); h++){
+                                if(moves_legal.at(h) == kingPosition){
+                                    movesToRemove.push_back(legalMoves.at(k));
+                                }
+                            }
+                        }
+                    }
+                    pieces.at(i)->setInformation(originalInfo);
+                }
+            }else{
+
+            }
+            return movesToRemove;
+        }
 };
 #endif

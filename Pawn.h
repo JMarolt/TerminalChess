@@ -10,10 +10,6 @@ class Pawn : public Piece{
         Pawn(char, char, char, int);
         vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
         vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
-        void setHasMoved(bool moved){
-            this->hasMoved = moved;
-        }
         void promote(vector<Piece*>&, Piece*, int);
         void setTurnAmount(int turns){
             this->turnsSinceFirstMove = turns;
@@ -26,7 +22,6 @@ class Pawn : public Piece{
     private:
         string position;
         string startingPosition;
-        bool hasMoved;
         int turnsSinceFirstMove;
 
 };
