@@ -81,20 +81,29 @@ void Board::run(){
         Piece* toBeMoved = getPiece(pieces, input);
         if(toBeMoved == nullptr){
             cout << "That is not a valid piece. Please try again\n";
-            break;
+            printBoardWhitePerspective();
+            continue;
+        }
+
+        if(toBeMoved->getInformation()[0] != teamColorTurn[0]){
+            cout << "Wrong team, " << teamColorTurn << " to move.\n";
+            printBoardWhitePerspective();
+            continue;
         }
 
         if(toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size() == 0){
             cout << "This piece has no legal moves, please choose another piece\n";
-
+            printBoardWhitePerspective();
+            continue;
         }
 
         cout << "Where would you like to move that piece to?\n";
         cin >> input;
 
         bool legal = false;
-        for(int i = 0; i < toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size(); i++){
-            if(toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).at(i) == input){
+        vector<string> legal_moves = toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+        for(int i = 0; i < legal_moves.size(); i++){
+            if(legal_moves.at(i) == input){
                 legal = true;
                 break;
             }
@@ -104,15 +113,42 @@ void Board::run(){
             toBeMoved->makeMove(pieces, input);
             string newPrev = toBeMoved->getInformation().append(previousLocation);
             previousMoves.push_back(newPrev);
+            isInCheck = false;
         }else{
             cout << "Legal Moves: ";
-            for(int i = 0; i < toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size(); i++){
-                cout << toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).at(i) << ", ";
+            for(int i = 0; i < legal_moves.size(); i++){
+                cout << legal_moves.at(i) << ", ";
             }
-            break;
+            continue;
+        }
+        //is team in check
+        int checkCount = 0;
+        for(int i = 0; i < pieces.size(); i++){
+            if(pieces.at(i)->getInformation()[0] == teamColorTurn[0]){
+                vector<string> moves_legal = pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+                for(int k = 0; k < moves_legal.size(); k++){
+                    string location = moves_legal.at(k);
+                    string piece = pieceOnLocation(pieces, location[0], location[1]);
+                    if(piece[1] == 'K'){
+                        isInCheck = true;
+                        checkCount++;
+                        break;
+                        break;
+                    }
+                }
+            }else{
+                continue;
+            }
+        }
+        if(isInCheck){
+            cout << "IN CHECK!!!\n";
+        }
+        if(checkCount == 0){
+            isInCheck = false;
         }
         //update pieces legal moves here
         whiteTurn = !whiteTurn;
+        //switch perspectives to black side when its their turn
         printBoardWhitePerspective();
 
         //check for stalemate and checkmate down here

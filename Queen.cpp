@@ -6,12 +6,34 @@
 
 using namespace std;
 
-Queen::Queen(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){}
+Queen::Queen(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){
+    string str = "";
+    str.push_back(team);
+    str.push_back(pieceIdentifier);
+    str.push_back(letterRank);
+    string toAdd = to_string(numberRank);
+    str.append(toAdd);
+    this->position = str;
+}
 
 Queen::Queen(string information) : Piece(information){}
 
 vector<string> Queen::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
     vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+    if(isInCheck){
+        vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
+        for(int i = 0; i < allLegalMoves.size(); i++){
+            for(int k = 0; k < removeLegalMoves.size(); k++){
+                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
+                    allLegalMoves.erase(allLegalMoves.begin() + i);
+                    removeLegalMoves.erase(removeLegalMoves.begin() + k);
+                    i--;
+                    k--;
+                    break;
+                }
+            }
+        }
+    }
     return allLegalMoves;
 }
 
@@ -157,10 +179,5 @@ vector<string> Queen::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>
         pos[0] += 1;
         pos[1] += 1;
     }
-    return moves;
-}
-
-vector<string> Queen::legalMovesRestrictedByCheck(vector<Piece*>& pieces, bool whiteTurn){
-    vector<string> moves;
     return moves;
 }

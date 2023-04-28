@@ -19,8 +19,22 @@ Bishop::Bishop(char team, char pieceIdentifier, char letterRank, int numberRank)
 Bishop::Bishop(std::string information) : Piece(information){}
 
 vector<string> Bishop::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
-    vector<string> tempLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    return tempLegalMoves;
+    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+    if(isInCheck){
+        vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
+        for(int i = 0; i < allLegalMoves.size(); i++){
+            for(int k = 0; k < removeLegalMoves.size(); k++){
+                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
+                    allLegalMoves.erase(allLegalMoves.begin() + i);
+                    removeLegalMoves.erase(removeLegalMoves.begin() + k);
+                    i--;
+                    k--;
+                    break;
+                }
+            }
+        }
+    }
+    return allLegalMoves;
 }
 
 vector<string> Bishop::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
@@ -100,9 +114,4 @@ vector<string> Bishop::temporaryLegalMoves(vector<Piece*>& pieces, vector<string
         pos[1] += 1;
     }
     return moves;
-}
-
-vector<string> Bishop::legalMovesRestrictedByCheck(vector<Piece*>&, bool){
-    vector<string> temp;
-    return temp;
 }

@@ -100,13 +100,22 @@ vector<string> Pawn::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>&
 }
 
 vector<string> Pawn::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
-    vector<string> tempLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    return tempLegalMoves;
-}
-
-vector<string> Pawn::legalMovesRestrictedByCheck(vector<Piece*>& pieces, bool whiteTurn){
-    vector<string> temp;
-    return temp;
+    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+    if(isInCheck){
+        vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
+        for(int i = 0; i < allLegalMoves.size(); i++){
+            for(int k = 0; k < removeLegalMoves.size(); k++){
+                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
+                    allLegalMoves.erase(allLegalMoves.begin() + i);
+                    removeLegalMoves.erase(removeLegalMoves.begin() + k);
+                    i--;
+                    k--;
+                    break;
+                }
+            }
+        }
+    }
+    return allLegalMoves;
 }
 
 void Pawn::promote(vector<Piece*>& pieces, Piece* pawnToReplace, int choice){

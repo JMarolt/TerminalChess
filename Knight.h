@@ -11,7 +11,6 @@ class Knight : public Piece{
         Knight(string);
         vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
         vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
 
     private:
         string position;

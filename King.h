@@ -10,7 +10,6 @@ class King : public Piece{
         King(char, char, char, int);
         vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
         vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> legalMovesRestrictedByCheck(vector<Piece*>&, bool);
 
     private:
         string position;
