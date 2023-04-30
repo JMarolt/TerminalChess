@@ -78,22 +78,24 @@ void Board::run(){
         if(input == "//"){
             break;
         }
+
         Piece* toBeMoved = getPiece(pieces, input);
         if(toBeMoved == nullptr){
             cout << "That is not a valid piece. Please try again\n";
-            printBoardWhitePerspective();
+            //printBoardWhitePerspective();
             continue;
         }
 
         if(toBeMoved->getInformation()[0] != teamColorTurn[0]){
             cout << "Wrong team, " << teamColorTurn << " to move.\n";
-            printBoardWhitePerspective();
+            //printBoardWhitePerspective();
             continue;
         }
 
-        if(toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck).size() == 0){
+        vector<string> legal_moves = toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+        if(legal_moves.size() == 0){
             cout << "This piece has no legal moves, please choose another piece\n";
-            printBoardWhitePerspective();
+            //printBoardWhitePerspective();
             continue;
         }
 
@@ -101,7 +103,6 @@ void Board::run(){
         cin >> input;
 
         bool legal = false;
-        vector<string> legal_moves = toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck);
         for(int i = 0; i < legal_moves.size(); i++){
             if(legal_moves.at(i) == input){
                 legal = true;
@@ -121,6 +122,9 @@ void Board::run(){
             }
             continue;
         }
+
+        whiteTurn = !whiteTurn;
+
         //is team in check
         int checkCount = 0;
         for(int i = 0; i < pieces.size(); i++){
@@ -146,8 +150,20 @@ void Board::run(){
         if(checkCount == 0){
             isInCheck = false;
         }
+        // if(isInCheck){
+        //     if(isCheckmate(whiteTurn)){
+        //         whiteTurn = !whiteTurn;
+        //         cout << "Checkmate! " << teamColorTurn << " wins by checkmate!\n";
+        //         break;
+        //     }
+        // }
+        // if(!isInCheck){
+        //     if(isStalemate(whiteTurn)){
+        //         cout << "Stalemate... the game has ended in a draw since " << teamColorTurn << " has no legal moves to play and is not in check\n";
+        //         break;
+        //     }
+        // }
         //update pieces legal moves here
-        whiteTurn = !whiteTurn;
         //switch perspectives to black side when its their turn
         printBoardWhitePerspective();
 
@@ -226,6 +242,39 @@ Piece* Board::getPiece(vector<Piece*>& pieces, string pieceCode){
         }
     }
     return nullptr;
+}
+
+bool Board::isCheckmate(bool whiteTurn){
+    int legalMoveCount = 0;
+    for(int i = 0; i < pieces.size(); i++){ //go through all the pieces on the board
+        if(whiteTurn){
+            if(pieces.at(i)->getInformation()[0] == 'B') continue;
+        }else{
+            if(pieces.at(i)->getInformation()[0] == 'W') continue;
+        }
+        legalMoveCount += pieces.at(i)->legalMoves(pieces, previousMoves, true, whiteTurn).size();
+    }
+    cout << "Legal move count: " << legalMoveCount << endl;
+    if(legalMoveCount == 0){
+        return true;
+    }
+    return false;
+}   
+
+bool Board::isStalemate(bool whiteTurn){
+    int legalMoveCount = 0;
+    for(int i = 0; i < pieces.size(); i++){ //go through all the pieces on the board
+        if(whiteTurn){
+            if(pieces.at(i)->getInformation()[0] == 'B') continue;
+        }else{
+            if(pieces.at(i)->getInformation()[0] == 'W') continue;
+        }
+        legalMoveCount += pieces.at(i)->legalMoves(pieces, previousMoves, false, whiteTurn).size();
+    }
+    if(legalMoveCount == 0){
+        return true;
+    }
+    return false;
 }
 
 //basically, its true if there are no legal moves for a player and the king is in check

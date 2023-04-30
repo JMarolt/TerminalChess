@@ -20,13 +20,12 @@ Rook::Rook(char team, char pieceIdentifier, char letterRank, int numberRank) : P
 
 Rook::Rook(std::string information) : Piece(information){}
 
-vector<string> Rook::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+vector<string> Rook::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool& isInCheck){
     vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    if(isInCheck){
         vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
         for(int i = 0; i < allLegalMoves.size(); i++){
             for(int k = 0; k < removeLegalMoves.size(); k++){
-                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
+                if((removeLegalMoves.at(k)[1] == 'R') && (allLegalMoves.at(i) == removeLegalMoves.at(k).substr(2, 2))){
                     allLegalMoves.erase(allLegalMoves.begin() + i);
                     removeLegalMoves.erase(removeLegalMoves.begin() + k);
                     i--;
@@ -35,11 +34,10 @@ vector<string> Rook::legalMoves(vector<Piece*>& pieces, vector<string>& previous
                 }
             }
         }
-    }
     return allLegalMoves;
 }
         
-vector<string> Rook::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+vector<string> Rook::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool& isInCheck){
     vector<string> moves;
     if(startingPosition != getInformation()){
         hasMoved = true;

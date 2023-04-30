@@ -9,8 +9,8 @@ class Knight : public Piece{
     public:
         Knight(char, char, char, int);
         Knight(string);
-        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool&);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool&);
 
     private:
         string position;

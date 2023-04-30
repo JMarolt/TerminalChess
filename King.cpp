@@ -18,13 +18,12 @@ King::King(char team, char pieceIdentifier, char letterRank, int numberRank) : P
     startingPosition = position;
 }
 
-vector<string> King::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+vector<string> King::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool& isInCheck){
     vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    if(isInCheck){
         vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
         for(int i = 0; i < allLegalMoves.size(); i++){
             for(int k = 0; k < removeLegalMoves.size(); k++){
-                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
+                if((removeLegalMoves.at(k)[1] == 'K') && (allLegalMoves.at(i) == removeLegalMoves.at(k).substr(2, 2))){
                     allLegalMoves.erase(allLegalMoves.begin() + i);
                     removeLegalMoves.erase(removeLegalMoves.begin() + k);
                     i--;
@@ -33,11 +32,10 @@ vector<string> King::legalMoves(vector<Piece*>& pieces, vector<string>& previous
                 }
             }
         }
-    }
     return allLegalMoves;
 }
 
-vector<string> King::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+vector<string> King::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool& isInCheck){
     vector<string> moves;
     if(startingPosition != getInformation()){
         hasMoved = true;

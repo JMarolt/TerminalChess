@@ -9,8 +9,8 @@ class Rook : public Piece{
     public:
         Rook(char, char, char, int);
         Rook(string);
-        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool&);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool&);
 
     private:
         string position;
