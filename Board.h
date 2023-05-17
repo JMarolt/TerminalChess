@@ -28,6 +28,7 @@ class Board{
         string pieceOnLocation(vector<Piece*>&, char, int);
         Piece* getPiece(vector<Piece*>&, string);
         bool isCheckmate(bool);
+        bool isStalemate(bool);
 
 };
 #endif

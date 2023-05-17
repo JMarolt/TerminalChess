@@ -7,7 +7,7 @@
 using namespace std;
 
 King::King(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){
-    hasMoved = false;
+    this->hasMoved = false;
     string str = "";
     str.push_back(team);
     str.push_back(pieceIdentifier);
@@ -20,28 +20,19 @@ King::King(char team, char pieceIdentifier, char letterRank, int numberRank) : P
 
 vector<string> King::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
     vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    if(isInCheck){
-        vector<string> removeLegalMoves = legalMovesRestrictedByCheck(pieces, previousMoves, whiteTurn, isInCheck);
-        for(int i = 0; i < allLegalMoves.size(); i++){
-            for(int k = 0; k < removeLegalMoves.size(); k++){
-                if(allLegalMoves.at(i) == removeLegalMoves.at(k)){
-                    allLegalMoves.erase(allLegalMoves.begin() + i);
-                    removeLegalMoves.erase(removeLegalMoves.begin() + k);
-                    i--;
-                    k--;
-                    break;
-                }
-            }
-        }
-    }
+    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn, isInCheck);
     return allLegalMoves;
 }
 
 vector<string> King::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
-    vector<string> moves;
-    if(startingPosition != getInformation()){
-        hasMoved = true;
+    if(hasMoved == false){
+        for(int i = 0; i < pieces.size(); i++){
+            if(pieces.at(i) == this && pieces.at(i)->hasMoved == true){
+                this->hasMoved = true;
+            }
+        }
     }
+    vector<string> moves;
     char teamLetter = getInformation()[0];
     string pos = getPos();
     //up-left
@@ -154,7 +145,7 @@ vector<string> King::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>&
                 pos[0] += 1;
                 Piece* isRook = getPieceOnLocation(pieces, pos);
                 if(isRook != nullptr){
-                    if(isRook->getInformation()[1] == 'R' && !(isRook->moved())){
+                    if(isRook->getInformation()[1] == 'R' && !(isRook->hasMoved)){
                         pos[0] -= 1;
                         moves.push_back(pos);
                     }
@@ -172,7 +163,7 @@ vector<string> King::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>&
                     pos[0] -= 1;
                     Piece* isRook = getPieceOnLocation(pieces, pos);
                     if(isRook != nullptr){
-                        if(isRook->getInformation()[1] == 'R' && !(isRook->moved())){
+                        if(isRook->getInformation()[1] == 'R' && !(isRook->hasMoved)){
                             pos[0] += 2;
                             moves.push_back(pos);
                         }
@@ -183,4 +174,81 @@ vector<string> King::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>&
     }
 
     return moves;
+}
+
+void King::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn, bool isInCheck){
+    //basically, in here we just have to move the piece to each of its temp legal moves and if the king remains in check, then we can remove it
+    //we will call erase in tempLegalMoves
+    string thisKingPos;
+    for(int i = 0; i < pieces.size(); i++){
+        if(whiteTurn){
+            if(pieces.at(i)->getInformation()[0] == 'B'){
+                continue;
+            }
+        }else{
+            if(pieces.at(i)->getInformation()[0] == 'W'){
+                continue;
+            }
+        }
+        if(pieces.at(i)->getInformation()[1] == 'K'){
+            thisKingPos = pieces.at(i)->getPos();
+            break;
+        }
+    }
+
+    for(int i = 0; i < tempLegalMoves.size(); i++){
+        string originalPos = getPos();
+        //here we temporarily remove a piece that the king moves to
+        Piece* tempCaptured = nullptr;
+        for(int k = 0; k < pieces.size(); k++){
+            if(whiteTurn){
+                if(pieces.at(k)->getInformation()[0] == 'W'){
+                    continue;
+                }
+            }else{
+                if(pieces.at(k)->getInformation()[0] == 'B'){
+                    continue;
+                }
+            }
+            if(pieces.at(k)->getPos() == tempLegalMoves.at(i)){
+                tempCaptured = pieces.at(k);
+                pieces.erase(pieces.begin() + k);
+                k--;
+            }
+        }
+        this->setInformation(getInformation().substr(0, 2) + tempLegalMoves.at(i));
+        thisKingPos = this->getPos();
+        bool noMove = false;
+        //go through pieces of the other team and check if it checks the king
+        for(int j = 0; j < pieces.size(); j++){
+            //if it is white's turn, then we need to check if the black pieces can now check
+            if(whiteTurn){
+                if(pieces.at(j)->getInformation()[0] == 'W'){
+                    continue;
+                }
+            }else{
+                if(pieces.at(j)->getInformation()[0] == 'B'){
+                    continue;
+                }
+            }
+            //check if legal moves of the other team are now/still on the king
+            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+            for(int k = 0; k < legal_Moves.size(); k++){
+                if(legal_Moves.at(k) == thisKingPos){
+                    tempLegalMoves.erase(tempLegalMoves.begin() + i);
+                    i--;
+                    noMove = true;
+                    break;
+                }
+            }
+            if(noMove){
+                break;
+            }
+        }
+        this->setInformation(getInformation().substr(0, 2) + originalPos);
+        thisKingPos = originalPos;
+        if(tempCaptured != nullptr){
+            pieces.push_back(tempCaptured);
+        }
+    }
 }
