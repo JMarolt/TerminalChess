@@ -10,8 +10,9 @@ class Bishop : public Piece{
     public:
         Bishop(char, char, char, int);
         Bishop(string);
-        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool&);
-        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool&);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
+        void legalMovesRestrictedByCheck(vector<Piece*>&, vector<string>&, vector<string>&, bool, bool);
 
     private:
         string position;
