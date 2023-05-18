@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-#include "Knight.h"
+#include "..\header_pieces\Knight.h"
 
 using namespace std;
 
@@ -19,13 +19,13 @@ Knight::Knight(char team, char pieceIdentifier, char letterRank, int numberRank)
 
 Knight::Knight(string information) : Piece(information){}
 
-vector<string> Knight::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
-    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn, isInCheck);
+vector<string> Knight::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
+    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn);
+    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn);
     return allLegalMoves;
 }
 
-vector<string> Knight::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+vector<string> Knight::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
     //+2 rank + 1 file done
     //+2 rank - 1 file done
     //+1 rank + 2 file done
@@ -140,7 +140,7 @@ vector<string> Knight::temporaryLegalMoves(vector<Piece*>& pieces, vector<string
     return moves;
 }
 
-void Knight::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn, bool isInCheck){
+void Knight::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn){
     //basically, in here we just have to move the piece to each of its temp legal moves and if the king remains in check, then we can remove it
     //we will call erase in tempLegalMoves
     string thisKingPos;
@@ -194,7 +194,7 @@ void Knight::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>&
                 }
             }
             //check if legal moves of the other team are now/still on the king
-            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn);
             for(int k = 0; k < legal_Moves.size(); k++){
                 if(legal_Moves.at(k) == thisKingPos){
                     tempLegalMoves.erase(tempLegalMoves.begin() + i);

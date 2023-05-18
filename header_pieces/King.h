@@ -8,9 +8,9 @@ using namespace std;
 class King : public Piece{
     public:
         King(char, char, char, int);
-        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        void legalMovesRestrictedByCheck(vector<Piece*>&, vector<string>&, vector<string>&, bool, bool);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool);
+        void legalMovesRestrictedByCheck(vector<Piece*>&, vector<string>&, vector<string>&, bool);
 
     private:
         string position;

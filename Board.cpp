@@ -1,15 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <unordered_map>
 
 #include "Board.h"
-#include "Pawn.h"
-#include "Bishop.h"
-#include "King.h"
-#include "Queen.h"
-#include "Rook.h"
-#include "Knight.h"
+#include "header_pieces\Pawn.h"
+#include "header_pieces\Bishop.h"
+#include "header_pieces\King.h"
+#include "header_pieces\Queen.h"
+#include "header_pieces\Rook.h"
+#include "header_pieces\Knight.h"
 
 using namespace std;
 
@@ -17,6 +16,7 @@ Board::Board(){
     init();
 }
 
+//creates the list and sets up the pieces on the board
 void Board::initVector(vector<Piece*>& pieces){
     for(unsigned i = 0; i < 8; i++){
         Pawn* whitePawns = new Pawn('W', 'P', 'a' + i, 2);
@@ -93,7 +93,7 @@ void Board::run(){
             continue;
         }
 
-        vector<string> legal_moves = toBeMoved->legalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+        vector<string> legal_moves = toBeMoved->legalMoves(pieces, previousMoves, whiteTurn);
         if(legal_moves.size() == 0){
             cout << "This piece has no legal moves, please choose another piece\n";
             //printBoardWhitePerspective();
@@ -132,7 +132,7 @@ void Board::run(){
         int checkCount = 0;
         for(int i = 0; i < pieces.size(); i++){
             if(pieces.at(i)->getInformation()[0] == teamColorTurn[0]){
-                vector<string> moves_legal = pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+                vector<string> moves_legal = pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn);
                 for(int k = 0; k < moves_legal.size(); k++){
                     string location = moves_legal.at(k);
                     string piece = pieceOnLocation(pieces, location[0], location[1]);
@@ -174,6 +174,7 @@ void Board::run(){
     }
 }
 
+//just prints all the pieces on the board in list form
 void Board::printBoardPieces(){
     for(unsigned i = 0; i < pieces.size(); i++){
         cout << pieces.at(i)->getInformation() << ", ";
@@ -236,6 +237,7 @@ void Board::sortByPosition(vector<Piece*>& pieces){
     }
 }
 
+//returns the piece information given its location
 string Board::pieceOnLocation(vector<Piece*>& pieces, char file, int rank){
     for(unsigned int i = 0; i < pieces.size(); i++){
         if(pieces.at(i)->getInformation()[2] == file && pieces.at(i)->getInformation()[3] == rank){
@@ -245,6 +247,7 @@ string Board::pieceOnLocation(vector<Piece*>& pieces, char file, int rank){
     return "----";
 }
 
+//returns the piece on the location passed in
 Piece* Board::getPiece(vector<Piece*>& pieces, string pieceCode){
     for(int i = 0; i < pieces.size(); i++){
         if(pieces.at(i)->getInformation() == pieceCode){
@@ -254,6 +257,7 @@ Piece* Board::getPiece(vector<Piece*>& pieces, string pieceCode){
     return nullptr;
 }
 
+//returns true if there is a checkmate
 bool Board::isCheckmate(bool whiteTurn){
     int legalMoveCount = 0;
     for(int i = 0; i < pieces.size(); i++){ //go through all the pieces on the board
@@ -262,7 +266,7 @@ bool Board::isCheckmate(bool whiteTurn){
         }else{
             if(pieces.at(i)->getInformation()[0] == 'W') continue;
         }
-        legalMoveCount += pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn, true).size();
+        legalMoveCount += pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn).size();
     }
     if(legalMoveCount == 0){
         return true;
@@ -270,6 +274,7 @@ bool Board::isCheckmate(bool whiteTurn){
     return false;
 }   
 
+//returns true if there is a stalemate
 bool Board::isStalemate(bool whiteTurn){
     int legalMoveCount = 0;
     for(int i = 0; i < pieces.size(); i++){ //go through all the pieces on the board
@@ -278,7 +283,7 @@ bool Board::isStalemate(bool whiteTurn){
         }else{
             if(pieces.at(i)->getInformation()[0] == 'W') continue;
         }
-        legalMoveCount += pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn, true).size();
+        legalMoveCount += pieces.at(i)->legalMoves(pieces, previousMoves, whiteTurn).size();
     }
     if(legalMoveCount == 0){
         return true;
@@ -286,6 +291,70 @@ bool Board::isStalemate(bool whiteTurn){
     return false;
 }
 
-//basically, its true if there are no legal moves for a player and the king is in check
-//if there are no legal moves, its their turn and they aren't in check, then it is a stalemate. 
+void Board::runTests(){
+    numberOfPositionsAfterMove(2);
+}
 
+void Board::numberOfPositionsAfterMove(int moves){
+    vector<Piece*> tempPieces = pieces;
+    vector<string> tempPrev = previousMoves;
+    bool white = true;
+    long long totalMoves = 0;
+    totalMoves = recursivePositionCount(moves, tempPieces, previousMoves, white);
+    cout << "Total Positions after " << moves << " moves is: " << totalMoves << endl;
+}
+
+long long Board::recursivePositionCount(int moves, vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
+    long long totalMoves = 0;
+    if(moves <= 0){
+        cout << "in here should quit\n";
+        return 0;
+    }
+    for(int i = 0; i < pieces.size(); i++){
+        if(pieces.at(i)->getInformation()[0] == 'B'){
+            continue;
+        }
+        vector<string> legal_moves = pieces.at(i)->legalMoves(pieces, previousMoves, true);
+        for(int j = 0; j < legal_moves.size(); j++){
+            string oldInfo = pieces.at(i)->getPos();
+            pieces.at(i)->makeMove(pieces, pieces.at(i), legal_moves.at(j));
+            string previousMoveAdd = pieces.at(i)->getInformation().append(oldInfo);
+            previousMoves.push_back(previousMoveAdd);
+            for(int h = 0; h < pieces.size(); h++){
+                if(pieces.at(h)->getInformation()[0] == 'W'){
+                    continue;
+                }
+                vector<string> legal_moves = pieces.at(h)->legalMoves(pieces, previousMoves, false);
+                for(int g = 0; g < legal_moves.size(); g++){
+                    string oldInfo = pieces.at(h)->getPos();
+                    pieces.at(h)->makeMove(pieces, pieces.at(h), legal_moves.at(g));
+                    string previousMoveAdd = pieces.at(h)->getInformation().append(oldInfo);
+                    previousMoves.push_back(previousMoveAdd);
+                    //totalMoves++;
+                    for(int f = 0; f < pieces.size(); f++){
+                        if(pieces.at(f)->getInformation()[0] == 'B'){
+                            continue;
+                        }
+                        vector<string> legal_moves = pieces.at(f)->legalMoves(pieces, previousMoves, true);
+                        for(int d = 0; d < legal_moves.size(); d++){
+                            string oldInfo = pieces.at(f)->getPos();
+                            cout << "Piece: " << pieces.at(f)->getInformation() << " || new pos: " << legal_moves.at(d) << endl; 
+                            pieces.at(f)->makeMove(pieces, pieces.at(f), legal_moves.at(d));
+                            string previousMoveAdd = pieces.at(f)->getInformation().append(oldInfo);
+                            previousMoves.push_back(previousMoveAdd);
+                            totalMoves++;
+                            cout << totalMoves << endl;
+                            pieces.at(f)->makeMove(pieces, pieces.at(f), oldInfo);
+                            pieces.at(f)->hasMoved = false;
+                        }
+                    }
+                    pieces.at(h)->makeMove(pieces, pieces.at(h), oldInfo);
+                    pieces.at(h)->hasMoved = false;
+                }
+            }
+            pieces.at(i)->makeMove(pieces, pieces.at(i), oldInfo);
+            pieces.at(i)->hasMoved = false;
+        }
+    }
+    return totalMoves;
+}

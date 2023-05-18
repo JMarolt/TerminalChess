@@ -2,11 +2,11 @@
 #include <string>
 #include <iostream>
 
-#include "Pawn.h"
-#include "Queen.h"
-#include "Bishop.h"
-#include "Rook.h"
-#include "Knight.h"
+#include "..\header_pieces\Pawn.h"
+#include "..\header_pieces\Queen.h"
+#include "..\header_pieces\Bishop.h"
+#include "..\header_pieces\Rook.h"
+#include "..\header_pieces\Knight.h"
 
 using std::string;
 using std::vector;
@@ -23,7 +23,7 @@ Pawn::Pawn(char team, char pieceIdentifier, char letterRank, int numberRank) : P
     startingPosition = position;
 }
 
-vector<string> Pawn::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+vector<string> Pawn::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
     if(hasMoved == false){
         for(int i = 0; i < pieces.size(); i++){
             if(pieces.at(i) == this && pieces.at(i)->hasMoved == true){
@@ -67,7 +67,7 @@ vector<string> Pawn::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>&
         moves.push_back(leftDiag);
     }
 
-    //EN PASSANT TIME... yuck
+    //En Passant
     if((getInformation()[0] == 'W' && getInformation()[3] == '5') || (getInformation()[0] == 'B' && getInformation()[3] == '4')){
         string toRight = getPos();
         string toLeft = getPos();
@@ -103,13 +103,13 @@ vector<string> Pawn::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>&
     return moves;
 }
 
-vector<string> Pawn::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
-    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn, isInCheck);
+vector<string> Pawn::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
+    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn);
+    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn);
     return allLegalMoves;
 }
 
-void Pawn::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn, bool isInCheck){
+void Pawn::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn){
     //basically, in here we just have to move the piece to each of its temp legal moves and if the king remains in check, then we can remove it
     //we will call erase in tempLegalMoves
     string thisKingPos;
@@ -163,7 +163,7 @@ void Pawn::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& p
                 }
             }
             //check if legal moves of the other team are now/still on the king
-            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn);
             for(int k = 0; k < legal_Moves.size(); k++){
                 if(legal_Moves.at(k) == thisKingPos){
                     tempLegalMoves.erase(tempLegalMoves.begin() + i);

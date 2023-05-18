@@ -2,11 +2,11 @@
 #include <string>
 #include <iostream>
 
-#include "Queen.h"
+#include "..\header_pieces\Rook.h"
 
 using namespace std;
 
-Queen::Queen(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){
+Rook::Rook(char team, char pieceIdentifier, char letterRank, int numberRank) : Piece(team, pieceIdentifier, letterRank, numberRank){
     hasMoved = false;
     string str = "";
     str.push_back(team);
@@ -15,17 +15,25 @@ Queen::Queen(char team, char pieceIdentifier, char letterRank, int numberRank) :
     string toAdd = to_string(numberRank);
     str.append(toAdd);
     this->position = str;
+    startingPosition = position;
 }
 
-Queen::Queen(string information) : Piece(information){}
+Rook::Rook(std::string information) : Piece(information){}
 
-vector<string> Queen::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
-    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
-    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn, isInCheck);
+vector<string> Rook::legalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
+    vector<string> allLegalMoves = temporaryLegalMoves(pieces, previousMoves, whiteTurn);
+    legalMovesRestrictedByCheck(pieces, previousMoves, allLegalMoves, whiteTurn);
     return allLegalMoves;
 }
-
-vector<string> Queen::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn, bool isInCheck){
+        
+vector<string> Rook::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>& previousMoves, bool whiteTurn){
+    if(hasMoved == false){
+        for(int i = 0; i < pieces.size(); i++){
+            if(pieces.at(i) == this && pieces.at(i)->hasMoved == true){
+                this->hasMoved = true;
+            }
+        }
+    }
     vector<string> moves;
     char teamLetter = getInformation()[0];
     int i;
@@ -93,84 +101,10 @@ vector<string> Queen::temporaryLegalMoves(vector<Piece*>& pieces, vector<string>
         moves.push_back(pos);
         pos[1] += 1;
     }
-    //bishop moves below
-
-    //left up-diag
-    pos = getPos();
-    pos[0] -= 1;
-    pos[1] += 1;
-    for(i = 0; i < 8; i++){
-        if(pos[0] < 'a' || pos[1] > '8'){
-            break;
-        }
-        if(pieceOnLocation(pieces, pos)){
-            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
-                moves.push_back(pos);
-            }
-            break;
-        }
-        moves.push_back(pos);
-        pos[0] -= 1;
-        pos[1] += 1;
-    }
-    //left down-diag
-    pos = getPos();
-    pos[0] -= 1;
-    pos[1] -= 1;
-    for(i = 0; i < 8; i++){
-        if(pos[0] < 'a' || pos[1] < '1'){
-            break;
-        }
-        if(pieceOnLocation(pieces, pos)){
-            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
-                moves.push_back(pos);
-            }
-            break;
-        }
-        moves.push_back(pos);
-        pos[0] -= 1;
-        pos[1] -= 1;
-    }
-    //right down-diag
-    pos = getPos();
-    pos[0] += 1;
-    pos[1] -= 1;
-    for(i = 0; i < 8; i++){
-        if(pos[0] > 'h' || pos[1] < '1'){
-            break;
-        }
-        if(pieceOnLocation(pieces, pos)){
-            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
-                moves.push_back(pos);
-            }
-            break;
-        }
-        moves.push_back(pos);
-        pos[0] += 1;
-        pos[1] -= 1;
-    }
-    //right up-diag
-    pos = getPos();
-    pos[0] += 1;
-    pos[1] += 1;
-    for(i = 0; i < 8; i++){
-        if(pos[0] > 'h' || pos[1] > '8'){
-            break;
-        }
-        if(pieceOnLocation(pieces, pos)){
-            if(getPieceOnLocation(pieces, pos)->getInformation()[0] != teamLetter){
-                moves.push_back(pos);
-            }
-            break;
-        }
-        moves.push_back(pos);
-        pos[0] += 1;
-        pos[1] += 1;
-    }
     return moves;
 }
 
-void Queen::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn, bool isInCheck){
+void Rook::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& previousMoves, vector<string>& tempLegalMoves, bool whiteTurn){
     //basically, in here we just have to move the piece to each of its temp legal moves and if the king remains in check, then we can remove it
     //we will call erase in tempLegalMoves
     string thisKingPos;
@@ -224,7 +158,7 @@ void Queen::legalMovesRestrictedByCheck(vector<Piece*>& pieces, vector<string>& 
                 }
             }
             //check if legal moves of the other team are now/still on the king
-            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn, isInCheck);
+            vector<string> legal_Moves = pieces.at(j)->temporaryLegalMoves(pieces, previousMoves, whiteTurn);
             for(int k = 0; k < legal_Moves.size(); k++){
                 if(legal_Moves.at(k) == thisKingPos){
                     tempLegalMoves.erase(tempLegalMoves.begin() + i);
