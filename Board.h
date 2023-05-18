@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "Piece.h"
+#include "header_pieces\Piece.h"
 
 using namespace std;
 
@@ -11,12 +11,8 @@ class Board{
 
     public:
         Board();
-        void init();
-        void initVector(vector<Piece*>&);
         void run();
-        void printBoardPieces();
-        void printBoardWhitePerspective();
-        void printBoardFromSpectator();
+        void runTests();
     private:
         //stores all the pieces currently on the board
         vector<Piece*> pieces;
@@ -24,11 +20,20 @@ class Board{
         //key is piece info and value is the move(i.e. where it previously was since our key will hold our current pos)
         vector<string> previousMoves;
         
+        void init();
+        void initVector(vector<Piece*>&);
         void sortByPosition(vector<Piece*>&);
         string pieceOnLocation(vector<Piece*>&, char, int);
         Piece* getPiece(vector<Piece*>&, string);
         bool isCheckmate(bool);
         bool isStalemate(bool);
 
+        void printBoardPieces();
+        void printBoardWhitePerspective();
+        void printBoardFromSpectator();
+
+        //test stuff
+        void numberOfPositionsAfterMove(int);
+        long long recursivePositionCount(int, vector<Piece*>&, vector<string>&, bool);
 };
 #endif

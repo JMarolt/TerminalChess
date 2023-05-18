@@ -8,9 +8,9 @@ using namespace std;
 class Pawn : public Piece{
     public:
         Pawn(char, char, char, int);
-        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool, bool);
-        void legalMovesRestrictedByCheck(vector<Piece*>&, vector<string>&, vector<string>&, bool, bool);
+        vector<string> legalMoves(vector<Piece*>&, vector<string>&, bool);
+        vector<string> temporaryLegalMoves(vector<Piece*>&, vector<string>&, bool);
+        void legalMovesRestrictedByCheck(vector<Piece*>&, vector<string>&, vector<string>&, bool);
         void promote(vector<Piece*>&, Piece*, int);
         void setTurnAmount(int turns){
             this->turnsSinceFirstMove = turns;
